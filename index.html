@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: 0;
+      }
+
+      body {
+        background-color: rgba(243, 239, 226, 0.744);
+      }
+
+      .container {
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        padding: 2em;
+        gap: 2em;
+      }
+
+      #dataset-container,
+      #query-container {
+        width: 800px;
+        height: 90vh;
+        border: 3px solid;
+        text-align: center;
+        padding: 0.2em;
+      }
+      #dataset,
+      #inputed-queries {
+        height: 80%;
+      }
+
+      input {
+        width: 400px;
+        height: 40px;
+        font-size: 1.2em;
+        padding: 0 0.2em;
+      }
+      button {
+        height: 40px;
+        width: 100px;
+      }
+
+      #input-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2em;
+      }
+
+      #query-container {
+        background-color: rgba(214, 193, 186, 0.634);
+      }
+
+      #dataset-container {
+        background-color: rgba(237, 221, 210, 0.767);
+      }
+
+      #data-input,
+      #query {
+        display: inline-block;
+      }
+
+      p {
+        font-size: 1.5em;
+      }
+
+      h2 {
+        font-size: 2em;
+        background-color: rgba(228, 155, 169, 0.586);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div id="dataset-container">
+        <h2>data</h2>
+        <div id="dataset"></div>
+        <div id="input-field">
+          <div id="data-input">
+            <input id="input" type="text" placeholder="enter data" />
+            <button id="add-data">add</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="query-container">
+        <h2>queries</h2>
+        <div id="inputed-queries"></div>
+
+        <div id="queries-input-field">
+          <p>answer: <span id="answer"></span></p>
+          <input type="text" id="query_field" placeholder="enter query" />
+          <button id="run-query">run</button>
+        </div>
+      </div>
+      <ul>
+        <li>adds fact</li>
+        <li>looks for several facts, query with X</li>
+      </ul>
+    </div>
+  </body>
+
+  <script src="./app.js"></script>
+</html>
