@@ -3,6 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Badeen+Display&display=swap"
+      rel="stylesheet"
+    />
     <title>Document</title>
     <style>
       * {
@@ -12,28 +18,16 @@
       }
 
       body {
-        background-color: rgba(243, 239, 226, 0.744);
-      }
+        background: #f2e1c7;
+        background: radial-gradient(
+          circle,
+          rgba(242, 225, 199, 1) 0%,
+          rgba(183, 206, 232, 1) 100%
+        );
+        overflow: hidden;
 
-      .container {
-        width: 100%;
         height: 100vh;
-        display: flex;
-        padding: 2em;
-        gap: 2em;
-      }
-
-      #dataset-container,
-      #query-container {
-        width: 800px;
-        height: 90vh;
-        border: 3px solid;
-        text-align: center;
-        padding: 0.2em;
-      }
-      #dataset,
-      #inputed-queries {
-        height: 80%;
+        width: 100%;
       }
 
       input {
@@ -41,6 +35,7 @@
         height: 40px;
         font-size: 1.2em;
         padding: 0 0.2em;
+        border-radius: 0.3em;
       }
       button {
         height: 40px;
@@ -53,58 +48,131 @@
         gap: 0.2em;
       }
 
-      #query-container {
-        background-color: rgba(214, 193, 186, 0.634);
+      #dataset {
+        width: 100%;
+        height: 100%;
+        overflow-y: scroll;
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        border: 1px solid;
+        gap: 0.1em;
       }
 
-      #dataset-container {
-        background-color: rgba(237, 221, 210, 0.767);
-      }
-
-      #data-input,
-      #query {
-        display: inline-block;
+      .data-space {
+        padding: 0.2em 0.7em;
+        border: 1px solid crimson;
+        font-style: italic;
+        height: 100px;
+        overflow: scroll;
+        font-size: 1.5em;
+        text-align: end;
+        animation: scaleIn 0.3s ease-out;
+        background-color: aliceblue;
       }
 
       p {
         font-size: 1.5em;
       }
 
-      h2 {
-        font-size: 2em;
-        background-color: rgba(228, 155, 169, 0.586);
+      header {
+        height: 10vh;
+        width: 100%;
+        display: flex;
+        padding: 0.2em 4em;
+      }
+      #header-text {
+        font-family: "Badeen Display", system-ui;
+        font-weight: 400;
+        font-style: normal;
+        font-size: 3em;
+      }
+
+      .queries-sidebar {
+        background-color: crimson;
+        width: 30%;
+        display: flex;
+        flex-direction: column;
+        border-right: 4px solid;
+      }
+
+      .main_container {
+        width: 100%;
+        height: 85vh;
+        display: flex;
+      }
+
+      main {
+        width: 70%;
+        height: 85vh;
+      }
+
+      .queries {
+        height: 100%;
+      }
+
+      #query-input {
+        margin-left: 2em;
+      }
+
+      #query-container {
+        height: 40px;
+        padding: 0.5em 1em;
+        border: 4px solid;
+        background: rgb(102, 89, 89);
+      }
+      button {
+        background: crimson;
+        border-radius: 0.3em;
+      }
+
+      #add-data-container {
+        background-color: crimson;
+        width: 100%;
+        border-top: 4px solid;
+        padding: 0.5em 1em;
+      }
+
+      #add-data {
+        background: gray;
+        margin-bottom: 0.2em;
+      }
+
+      @keyframes scaleIn {
+        from {
+          opacity: 0;
+          transform: scale(0.8);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div id="dataset-container">
-        <h2>data</h2>
+    <header>
+      <h2 id="header-text">[ PROLOG ]</h2>
+    </header>
+    <div></div>
+
+    <div class="main_container">
+      <aside class="queries-sidebar">
+        <div class="queries"></div>
+        <div id="query-container">
+          <input type="text" id="query-input" placeholder="enter query..." />
+          <button id="query">run</button>
+        </div>
+      </aside>
+      <main>
+        <div id="add-data-container">
+          <input id="input" type="text" placeholder="enter data" />
+          <button id="add-data">add</button>
+        </div>
+
         <div id="dataset"></div>
-        <div id="input-field">
-          <div id="data-input">
-            <input id="input" type="text" placeholder="enter data" />
-            <button id="add-data">add</button>
-          </div>
-        </div>
-      </div>
-
-      <div id="query-container">
-        <h2>queries</h2>
-        <div id="inputed-queries"></div>
-
-        <div id="queries-input-field">
-          <p>answer: <span id="answer"></span></p>
-          <input type="text" id="query_field" placeholder="enter query" />
-          <button id="run-query">run</button>
-        </div>
-      </div>
-      <ul>
-        <li>adds fact</li>
-        <li>looks for several facts, query with X</li>
-      </ul>
+      </main>
     </div>
   </body>
 
-  <script src="./app.js"></script>
+  <script src="./ani.js"></script>
 </html>
