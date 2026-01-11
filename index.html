@@ -6,7 +6,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Badeen+Display&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Badeen+Display&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Nanum+Myeongjo&family=Sekuya&family=Smooch+Sans:wght@100..900&display=swap"
       rel="stylesheet"
     />
     <title>Document</title>
@@ -18,12 +18,17 @@
       }
 
       body {
+        font-family: "Bodoni Moda", serif;
+        font-optical-sizing: auto;
+
+        font-style: normal;
         background: #f2e1c7;
         background: radial-gradient(
           circle,
           rgba(242, 225, 199, 1) 0%,
           rgba(183, 206, 232, 1) 100%
         );
+
         overflow: hidden;
 
         height: 100vh;
@@ -31,15 +36,48 @@
       }
 
       input {
+        font-family: "Bodoni Moda", serif;
+        font-optical-sizing: auto;
+
+        font-style: italic;
         width: 400px;
         height: 40px;
-        font-size: 1.2em;
+        font-size: 1.4em;
         padding: 0 0.2em;
         border-radius: 0.3em;
+        background-color: cornsilk;
       }
       button {
+        font-family: "Bodoni Moda", serif;
+        font-optical-sizing: auto;
+
+        font-style: normal;
         height: 40px;
         width: 100px;
+        font-size: 1.5em;
+        font-weight: 500;
+      }
+      p {
+        font-size: 1.5em;
+      }
+
+      header {
+        height: 10vh;
+        width: 100%;
+        display: flex;
+        padding: 0.5em 4em;
+        justify-content: flex-start;
+        align-items: center;
+      }
+      #header-text {
+        font-family: "Badeen Display", system-ui;
+        font-weight: 400;
+        font-style: normal;
+        font-size: 3.5em;
+
+        font-family: "Sekuya", system-ui;
+        font-weight: 400;
+        font-style: normal;
       }
 
       #input-field {
@@ -53,40 +91,50 @@
         height: 100%;
         overflow-y: scroll;
         display: grid;
-        grid-template-columns: repeat(6, 1fr);
-        border: 1px solid;
-        gap: 0.1em;
+        grid-template-columns: repeat(5, 1fr);
+        grid-auto-rows: 90px;
+        gap: 0.2em;
       }
 
       .data-space {
         padding: 0.2em 0.7em;
         border: 1px solid crimson;
         font-style: italic;
-        height: 100px;
-        overflow: scroll;
-        font-size: 1.5em;
+        height: 80px;
+
+        font-size: 1.2em;
         text-align: end;
         animation: scaleIn 0.3s ease-out;
-        background-color: aliceblue;
+
+        background: #f2e1c7;
+        background: radial-gradient(
+          circle,
+          rgba(242, 225, 199, 1) 0%,
+          rgba(183, 206, 232, 1) 100%
+        );
+
+        box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px,
+          rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
+        cursor: pointer;
       }
 
-      p {
+      .query-space {
         font-size: 1.5em;
-      }
-
-      header {
-        height: 10vh;
+        text-align: center;
+        height: 50px;
+        background-color: aliceblue;
         width: 100%;
-        display: flex;
-        padding: 0.2em 4em;
-      }
-      #header-text {
-        font-family: "Badeen Display", system-ui;
-        font-weight: 400;
-        font-style: normal;
-        font-size: 3em;
-      }
+        border-radius: 0.2em;
+        box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px,
+          rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
 
+        animation: slideUpBounce 0.4s ease-out;
+      }
+      .main_container {
+        width: 100%;
+        height: 90vh;
+        display: flex;
+      }
       .queries-sidebar {
         background-color: crimson;
         width: 30%;
@@ -95,30 +143,51 @@
         border-right: 4px solid;
       }
 
-      .main_container {
-        width: 100%;
-        height: 85vh;
-        display: flex;
-      }
-
       main {
         width: 70%;
         height: 85vh;
       }
 
-      .queries {
+      #queries {
+        border: 1px solid;
         height: 100%;
+        gap: 0.2em 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 1em;
+        overflow-y: scroll;
       }
 
-      #query-input {
-        margin-left: 2em;
+      #remove-data-space {
+        width: 10px;
       }
+
+      @keyframes slideUpFade {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      /*
+          #query-input {
+            //margin-left: 2em;
+          } */
 
       #query-container {
         height: 40px;
-        padding: 0.5em 1em;
+        padding: 2em 1em;
         border: 4px solid;
         background: rgb(102, 89, 89);
+        display: flex;
+        gap: 0.1em;
+        justify-content: center;
+        align-items: center;
       }
       button {
         background: crimson;
@@ -135,6 +204,7 @@
       #add-data {
         background: gray;
         margin-bottom: 0.2em;
+        color: cornsilk;
       }
 
       @keyframes scaleIn {
@@ -147,6 +217,20 @@
           transform: scale(1);
         }
       }
+
+      @keyframes slideUpBounce {
+        0% {
+          opacity: 0;
+          transform: translateY(30px) scale(0.9);
+        }
+        60% {
+          transform: translateY(-5px) scale(1.02);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
     </style>
   </head>
   <body>
@@ -157,7 +241,7 @@
 
     <div class="main_container">
       <aside class="queries-sidebar">
-        <div class="queries"></div>
+        <div id="queries"></div>
         <div id="query-container">
           <input type="text" id="query-input" placeholder="enter query..." />
           <button id="query">run</button>
