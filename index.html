@@ -46,6 +46,8 @@
         padding: 0 0.2em;
         border-radius: 0.3em;
         background-color: cornsilk;
+
+        cursor: pointer;
       }
       button {
         font-family: "Bodoni Moda", serif;
@@ -56,6 +58,7 @@
         width: 100px;
         font-size: 1.5em;
         font-weight: 500;
+        cursor: pointer;
       }
       p {
         font-size: 1.5em;
@@ -68,6 +71,11 @@
         padding: 0.5em 4em;
         justify-content: flex-start;
         align-items: center;
+        background: white;
+        overflow: hidden;
+        background-image: url("./res/3ef1ea4b4004f1760a9cd8470ab96de1.jpg");
+        background-position: top right;
+        background-size: contain;
       }
       #header-text {
         font-family: "Badeen Display", system-ui;
@@ -119,14 +127,18 @@
       }
 
       .query-space {
-        font-size: 1.5em;
-        text-align: center;
-        height: 50px;
-        background-color: aliceblue;
+        font-size: 1.3em;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 50px;
+        padding: 0.5em;
+        color: white;
+        background-color: rgb(54, 47, 47);
         width: 100%;
         border-radius: 0.2em;
         box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px,
-          rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
+          rgba(117, 119, 122, 0.13) 0px 0px 1px 1px;
 
         animation: slideUpBounce 0.4s ease-out;
       }
@@ -136,7 +148,8 @@
         display: flex;
       }
       .queries-sidebar {
-        background-color: crimson;
+        background-color: rgba(214, 215, 216, 0.758);
+        overflow-y: scroll;
         width: 30%;
         display: flex;
         flex-direction: column;
@@ -183,19 +196,20 @@
         height: 40px;
         padding: 2em 1em;
         border: 4px solid;
-        background: rgb(102, 89, 89);
+        background: rgb(59, 52, 52);
         display: flex;
         gap: 0.1em;
         justify-content: center;
         align-items: center;
       }
       button {
-        background: crimson;
+        background: rgb(164, 161, 161);
         border-radius: 0.3em;
+        color: cornsilk;
       }
 
       #add-data-container {
-        background-color: crimson;
+        background-color: rgba(20, 4, 18, 0.725);
         width: 100%;
         border-top: 4px solid;
         padding: 0.5em 1em;

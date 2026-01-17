@@ -15,12 +15,14 @@ class Prolog {
     console.log(this.#factsList);
   }
 
+  //* add fact / rule
+  //////////////////////////////////////////////////////////
   addFact(factString) {
     const parsed = this.parseTerm(factString);
     if (parsed) {
       this.facts.push({
         type: "fact",
-        original: factString,
+        entry: factString,
         predicate: parsed.predicate,
         args: parsed.args,
       });
@@ -29,6 +31,33 @@ class Prolog {
     return false;
   }
 
+  add_rule(rule_string) {
+    const match = rule_string.match(/^(.+):-(.+)$/);
+    console.log(match);
+    const rule_definition = this.parseQuery(match[2].trim());
+    const rule_head_parts = this.parseTerm(match[1]);
+
+    this.#factsList.push({
+      type: "rule",
+      entry: match[0].trim(),
+      rule: match[1].trim(),
+      rule_head: rule_head_parts.predicate,
+      rule_args: rule_head_parts.args,
+      rule_definition: rule_definition,
+    });
+
+    console.log(this.facts);
+  }
+
+  remove_entry(entry_text) {
+    for (let i = 0; i < this.facts.length; i++) {
+      if (this.facts[i].entry === entry_text) {
+        this.facts.splice(i, 1);
+      }
+    }
+  }
+
+  /////////////////////////////////////////
   query(queryString) {
     const goals = this.parseQuery(queryString);
     if (goals.length === 0) return [];
@@ -36,21 +65,10 @@ class Prolog {
     // Find all solutions
     return this.solve(goals, {});
   }
+
   ///// find if atom is uppercase letter or starts with uppercase letter
   isVariable(term) {
     return /^[A-Z_]/.test(term);
-  }
-
-  add_rule(rule_string) {
-    const match = rule_string.match(/^(.+):-(.+)$/);
-    const rule_definition = this.parseQuery(match[2].trim());
-
-    this.#factsList.push({
-      type: "rule",
-      original: match[0].trim(),
-      rule: match[1].trim(),
-      rule_definition: rule_definition,
-    });
   }
 
   //////////////////2 to parse single term in fact, predicate, args
@@ -60,12 +78,12 @@ class Prolog {
 
     console.log("parse term ", term, "match", match);
 
-    let fact = match[0];
+    let entry = match[0];
     let predicate = match[1].trim();
     let args = match[2].split(",").map((a) => a.trim());
 
     return {
-      fact: fact,
+      entry: entry,
       predicate: predicate,
       args: args,
     };
@@ -79,7 +97,7 @@ class Prolog {
 
     while ((match = regex.exec(query)) !== null) {
       goals.push({
-        fact: match[0],
+        entry: match[0],
         predicate: match[1],
         args: match[2].split(",").map((arg) => arg.trim()),
       });
@@ -87,104 +105,116 @@ class Prolog {
 
     return goals;
   }
-
-  // unify(term1, term2, substitution = {}) {
-  //   const subst = { ...substitution };
-
-  //   if (this.isVariable(term1) && subst[term1] !== undefined) {
-  //     term1 = subst[term1];
-  //   }
-
-  //   if (this.isVariable(term2) && subst[term2] !== undefined) {
-  //     term2 = subst[term2];
-  //   }
-  // }
-
-  // solve(goals, substitution) {
-  //   if (goals.length === 0) {
-  //     return [substitution];
-  //   }
-
-  //   const [currentGoal, ...remainingGoals] = goals;
-
-  //   for (const goal of goals) {
-  //     let newSubst;
-  //     const factGoal = {
-  //       fact: goal.fact,
-  //       predicate: goal.predicate,
-  //       args: goal.args,
-  //     };
-  //     for (const fact of this.facts) {
-  //       // i need to determine if there are variables in goal or not at all if there arent i need to query it
-  //       // but first i will pass each to unify method,
-  //       //
-  //       // check if they are directly equal
-  //       if (fact.fact === goal.fact) return true;
-  //       else {
-  //         newSubst = this.unifyGoals(currentGoal, factGoal, substitution);
-  //         console.log(factGoal, "newSubst", newSubst);
-
-  //         if (newSubst) {
-  //           console.log(newSubst);
-  //           break;
-  //         }
-  //       }
-  //       console.log("new subst", newSubst);
-  //       // if (
-  //       //   Object.keys(newSubst).length == 0 ||
-  //       //   newSubst == undefined ||
-  //       //   newSubst == null
-  //       // ) {
-  //       //   console.log("searched for fact", this.search_for_fact(goal));
-  //       // }
-  //     }
-  //   }
-  // }
+  //////////////////////////////////////////////////////////////////////
 
   solve(goals, substitution) {
+    // if goals array is empty it means weve reached end of queries execution and only thing left is to analyze substitution object
+    // it contains results of executed queries.
+    // 1.substitutions for variables if query contained variables
+    // 2. empty object if just fact was found in database and no variables were mentioned in query
+    // 3. null if fact wasnt found.
+    let current_goals = goals;
     // Base case: no more goals to solve
+
     if (goals.length === 0) {
       return [substitution];
     }
 
-    const [currentGoal, ...remainingGoals] = goals;
+    // this checks if we have substitution variables from rule so it will try to look for specific atoms in database and not generalize them
+    // for example when we have passed query which is rule in database i store definition of it with variables then this defition is added to
+    // goals array to look for them in database but if i dont substitute variables values with ones passed in query unifyGoals method will generalize them
+
+    // if (Object.keys(substitution).length !== 0) {
+    //   current_goals = goals.map((g) => {
+    //     return this.applySubstitution(g, substitution);
+    //   });
+    // }
+
+    let [currentGoal, ...remainingGoals] = current_goals;
     const solutions = [];
 
     // Loop through DATABASE FACTS, not goals
-    for (const fact of this.facts) {
-      const factGoal = {
-        fact: fact.fact,
-        predicate: fact.predicate,
-        args: fact.args,
-      };
+    for (const entry of this.facts) {
+      if (entry.type == "fact") {
+        const list_goal = {
+          entry: entry.entry,
+          predicate: entry.predicate,
+          args: entry.args,
+        };
 
-      // Try to unify current goal with this fact
-      const newSubst = this.unifyGoals(currentGoal, factGoal, substitution);
+        // Try to unify current goal with this fact
+        const newSubst = this.unifyGoals(currentGoal, list_goal, substitution);
 
-      // console.log(
-      //   "Trying to unify:",
-      //   currentGoal,
-      //   "with",
-      //   factGoal,
-      //   "result:",
-      //   newSubst
-      // );
+        // if there were values for variables found we substitute them in all remaning goals
+        if (newSubst !== null) {
+          // Apply substitution to remaining goals
+          const substitutedGoals = remainingGoals.map((g) =>
+            this.applySubstitution(g, newSubst)
+          );
 
-      if (newSubst !== null) {
-        // Unification succeeded!
+          // after that i pass remaining goals to solve method with substitutions object
+          //   // Recursively solve remaining goals
+          const subSolutions = this.solve(substitutedGoals, newSubst);
+          solutions.push(...subSolutions);
+        }
+      } else if (entry.type == "rule") {
+        const list_rule = {
+          entry: entry.entry,
+          rule: entry.rule,
+          rule_args: entry.rule_args,
+          rule_head: entry.rule_head,
+          rule_definition: entry.rule_definition,
+        };
 
-        // Apply substitution to remaining goals
-        const substitutedGoals = remainingGoals.map((g) =>
-          this.applySubstitution(g, newSubst)
-        );
+        console.log(list_rule);
 
-        // Recursively solve remaining goals
-        const subSolutions = this.solve(substitutedGoals, newSubst);
-        solutions.push(...subSolutions);
+        if (
+          list_rule.rule_head ===
+          currentGoal.entry.substring(0, list_rule.rule_head.length)
+        ) {
+          const newSubst = this.substitute_variables_of_rule(
+            list_rule.rule_args,
+            currentGoal.args
+          );
+          const subst_goals = [...list_rule.rule_definition].map((g) =>
+            this.applySubstitution(g, newSubst)
+          );
+          console.log("subst   goals", subst_goals);
+          remainingGoals.unshift(...subst_goals);
+
+          // console.log(remainingGoals);
+          // if (newSubst !== null) {
+          //   const substitutedGoals = remainingGoals.map((g) => {
+          //     console.log(g);
+          //     this.applySubstitution(g, newSubst);
+          //   });
+
+          //   const subSolutions = this.solve(substitutedGoals, newSubst);
+          //   solutions.push(...subSolutions);
+          // }
+
+          //this.solve(remainingGoals, newSubst);
+          const subSolutions = this.solve(remainingGoals, newSubst);
+          solutions.push(...subSolutions);
+          console.log("solutions", solutions);
+        }
       }
     }
 
     return solutions;
+  }
+
+  substitute_variables_of_rule(rule_args, goal_args) {
+    const substitution = {};
+    console.log("rule args ", rule_args, "goal args ", goal_args);
+
+    for (let i = 0; i < rule_args.length; i++) {
+      if (!this.isVariable(goal_args[i]))
+        substitution[rule_args[i]] = goal_args[i];
+    }
+
+    console.log(substitution);
+    return substitution;
   }
 
   unify(term1, term2, substitution = {}) {
@@ -198,6 +228,9 @@ class Prolog {
     // if (this.isVariable(term2) && subst[term2] !== undefined) {
     //   term2 = subst[term2];
     // }
+    if (this.isVariable(term1) && this.isVariable(term2) && term1 === term2) {
+      subst[term1] = "_G";
+    }
 
     // If both are the same, unification succeeds
     if (term1 === term2 || this.isVariable(term2)) {
@@ -246,8 +279,9 @@ class Prolog {
 
   // Add this helper method to apply substitutions to goals
   applySubstitution(goal, substitution) {
+    console.log(goal, substitution);
     return {
-      fact: goal.fact,
+      entry: goal.entry,
       predicate: goal.predicate,
       args: goal.args.map((arg) =>
         this.isVariable(arg) && substitution[arg] !== undefined
@@ -257,63 +291,83 @@ class Prolog {
     };
   }
 
-  search_for_fact(goal) {
-    for (let f of this.#factsList) {
-      if (f.fact === goal.fact) return true;
+  formatSolution(solutions) {
+    console.log("solutions", solutions);
+    let answer = "";
+    if (solutions.length === 0) answer = false;
+    else if (Object.keys(solutions[0]).length == 0) answer = true;
+    // // else {
+    // //   // Object.entries(solutions[0]).forEach(([key, value]) => {
+    // //   //   console.log(key, value);
+    // //   //   answer += `${key} - ${value} `;
+    // //   // });
+    else {
+      for (let s of solutions) {
+        Object.entries(s).forEach(([key, value]) => {
+          console.log(key, value);
+          answer += `${key} - ${value} `;
+        });
+      }
     }
-    return false;
+
+    return answer;
   }
-
-  // here goal1 is input and goal2 is fact from db
-  // unifyGoals(goal1, goal2, substitution) {
-  //   if (
-  //     goal1.predicate == goal2.predicate &&
-  //     goal1.args.length == goal2.args.length
-  //   ) {
-  //     // check if atom is variable and try to substitute from goal2 which is fact from initial array
-
-  //     let subst = { ...substitution };
-
-  //     for (let i = 0; i < goal1.args.length; i++) {
-  //       let term1 = goal1.args[i],
-  //         term2 = goal2.args[i];
-  //       // for each argument from goal we pass them to unify method
-  //       // it compares them and tries to find value for variable from goal
-
-  //       if (!this.isVariable(term1) && term1 !== term2) return null;
-  //       else if (this.isVariable(term1)) {
-  //         if (term1 != term2 && !subst[term1]) {
-  //           subst[term1] = term2;
-  //         }
-  //       }
-
-  //       // // check if first is variable and actial goals dont match then we substitute
-  //       // if (!this.isVariable(goal1[i]) && goal1[i] != goal2[i]) {
-  //       //   return null;
-  //       // } else if (this.isVariable(goal1[i]) && goal1[i] != goal2[i]) {
-  //       // }
-  //     }
-
-  //     return subst;
-  //   }
-  // }
 }
 
+// search_for_fact(goal) {
+//   for (let f of this.#factsList) {
+//     if (f.fact === goal.fact) return true;
+//   }
+//   return false;
+// }
+
+///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
 let database_facts = [
-  { fact: "mother(tamari,ani)", predicate: "mother", args: ["tamari", "ani"] },
   {
-    fact: "father(abraham, isaac)",
+    type: "fact",
+    entry: "mother(tamari,ani)",
+    predicate: "mother",
+    args: ["tamari", "ani"],
+  },
+  {
+    type: "fact",
+    entry: "father(abraham, isaac)",
     predicate: "father",
     args: ["abraham", "isaac"],
   },
-  { fact: "father(haran,lot)", predicate: "father", args: ["haran", "lot"] },
-  { fact: "male(lot)", predicate: "male", args: ["lot"] },
   {
-    fact: "likes(X,Pomegranates",
-    predicate: "likes",
-    args: ["X", "Pomegranates"],
+    type: "fact",
+    entry: "father(haran,lot)",
+    predicate: "father",
+    args: ["haran", "lot"],
   },
-  {},
+  { type: "fact", entry: "male(lot)", predicate: "male", args: ["lot"] },
+  {
+    type: "fact",
+    entry: "likes(X,pomegranates)",
+    predicate: "likes",
+    args: ["X", "pomegranates"],
+  },
+  {
+    type: "rule",
+    entry: "son(X,Y):-father(Y,X),male(X)",
+    rule: "son(X,Y)",
+    rule_head: "son",
+    rule_args: ["X", "Y"],
+    rule_definition: [
+      {
+        entry: "father(Y,X)",
+        predicate: "father",
+        args: ["Y", "X"],
+      },
+      {
+        entry: "male(X)",
+        predicate: "male",
+        args: ["X"],
+      },
+    ],
+  },
 ];
 
 //// 1. factebi
@@ -321,15 +375,101 @@ const p = new Prolog();
 p.facts = database_facts;
 console.log(p.facts);
 
-const colors = ["beige", "bisque", "azure", "ghostwhite"];
+///////////////////////////////
+//* dom elements
 const dataset = document.getElementById("dataset");
 const input = document.getElementById("input");
+const query_input = document.getElementById("query-input");
+const queries_container = document.getElementById("queries");
+
+//////////////////////////////////
+// add existing facts
+//show already added facts
+function show_data() {
+  dataset.innerHTML = "";
+  const data_space = document.querySelectorAll(".data-space");
+  p.facts.forEach((entry) => {
+    const article = document.createElement("article");
+    article.classList.add("data-space");
+    article.innerText = entry.entry;
+    article.addEventListener("click", (e) => remove_data(e));
+    dataset.appendChild(article);
+  });
+
+  return data_space;
+}
+
+const data_spaces = show_data();
+
+// add listener to remove data space
+
+function remove_data(data_node) {
+  if (data_node) {
+    const value = data_node.srcElement.innerText;
+    p.remove_entry(value);
+
+    show_data();
+  }
+}
+
+////////////////////////////////////////
 document.getElementById("add-data").addEventListener("click", () => {
   let value = input.value;
   p.add_entry(value);
   const article = document.createElement("article");
 
   article.classList.add("data-space");
-  article.innerText = value;
+  article.innerText = value.trim();
   dataset.appendChild(article);
+  input.value = "";
 });
+
+document.getElementById("query").addEventListener("click", () => {
+  const value = query_input.value.trim();
+
+  const answer = p.formatSolution(p.query(value));
+  //const answer = p.query(value);
+  const article = document.createElement("article");
+  article.classList.add("query-space");
+  article.innerText = value + " answer [" + answer + "] ";
+
+  const existingArticles = Array.from(
+    document.querySelectorAll(".query-space")
+  );
+  existingArticles.forEach((art) => {
+    console.log(art);
+    const currentTransform = art.style.transform || "translateY(0)";
+    const currentY = parseFloat(currentTransform.match(/-?\d+/)[0]) || 0;
+    console.log(currentTransform, currentY);
+    art.style.transform = `translateY(${currentY}px)`;
+    console.log(art.style.transform);
+  });
+
+  queries_container.append(article);
+  query_input.value = "";
+
+  // setTimeout(() => {
+  //   const actualHeight = article.offsetHeight;
+  //   existingArticles.forEach((art) => {
+  //     const currentTransform = art.style.transform || "translateY(0)";
+  //     const currentY = parseFloat(currentTransform.match(/-?\d+/) || [0])[0];
+  //     art.style.transform = `translateY(${currentY}px)`;
+  //     //+ (50 - actualHeight)
+  //   });
+  // }, 0);
+});
+
+//console.log(p.formatSolution(p.query("male(lot)")));
+
+//console.log(p.query("father(X,Y),male(Y)"));
+//p.add_entry("son(X,Y):-father(Y,X),male(Y)");
+// console.log(p.formatSolution(p.query("likes(cat,dog)")));
+// p.add_rule("son(X,Y):-father(Y,X),male(Y)");
+// console.log(p.query("son(ani,bimi)"));
+
+//console.log(p.query("son(lot,haran),father(abraham,X)"));
+//console.log(p.query("likes(X, pomegranates), male(X)"));
+
+//console.log(data_space);
+// delete data space
+console.log(p.formatSolution(p.query("male(ani)")));
