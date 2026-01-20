@@ -9,10 +9,12 @@ class Prolog {
   }
 
   add_entry(input) {
+    // check if string contains :- sybol then try to parse as rule
     if (/\s*:-\s*/.test(input)) this.add_rule(input);
+    // else think its fact and try to parse and add into database
     else this.addFact(input);
 
-    console.log(this.#factsList);
+    // console.log(this.#factsList);
   }
 
   //* add fact / rule
@@ -32,11 +34,15 @@ class Prolog {
   }
 
   add_rule(rule_string) {
+    // splits input between :- sybmol
     const match = rule_string.match(/^(.+):-(.+)$/);
     console.log(match);
+    // attain rule definition string
     const rule_definition = this.parseQuery(match[2].trim());
+    // rule head
     const rule_head_parts = this.parseTerm(match[1]);
 
+    // save rule in array
     this.#factsList.push({
       type: "rule",
       entry: match[0].trim(),
@@ -73,6 +79,7 @@ class Prolog {
 
   //////////////////2 to parse single term in fact, predicate, args
 
+  // this method is used by add fact method
   parseTerm(term) {
     const match = term.match(new RegExp(`^(\\w+)\\((.*)\\)$`));
 
@@ -90,12 +97,16 @@ class Prolog {
   }
 
   parseQuery(query) {
+    // split input as predicate and arguments(string before bracket and string within it)
     const regex = /(\w+)\(([^)]*)\)/g;
 
     const goals = [];
     let match;
 
+    // while regex find match format it as my object pattern and return it as an array that will be passed to solve method
+
     while ((match = regex.exec(query)) !== null) {
+      console.log("match from query search parsing method ", match);
       goals.push({
         entry: match[0],
         predicate: match[1],
@@ -108,6 +119,7 @@ class Prolog {
   //////////////////////////////////////////////////////////////////////
 
   solve(goals, substitution) {
+    console.log("solve method called with ", goals);
     // if goals array is empty it means weve reached end of queries execution and only thing left is to analyze substitution object
     // it contains results of executed queries.
     // 1.substitutions for variables if query contained variables
@@ -142,14 +154,14 @@ class Prolog {
           args: entry.args,
         };
 
-        // Try to unify current goal with this fact
+        // Try to unify current goal with this fact: finding variable bindings that make two logical terms identical.
         const newSubst = this.unifyGoals(currentGoal, list_goal, substitution);
 
         // if there were values for variables found we substitute them in all remaning goals
         if (newSubst !== null) {
           // Apply substitution to remaining goals
           const substitutedGoals = remainingGoals.map((g) =>
-            this.applySubstitution(g, newSubst)
+            this.applySubstitution(g, newSubst),
           );
 
           // after that i pass remaining goals to solve method with substitutions object
@@ -174,10 +186,10 @@ class Prolog {
         ) {
           const newSubst = this.substitute_variables_of_rule(
             list_rule.rule_args,
-            currentGoal.args
+            currentGoal.args,
           );
           const subst_goals = [...list_rule.rule_definition].map((g) =>
-            this.applySubstitution(g, newSubst)
+            this.applySubstitution(g, newSubst),
           );
           console.log("subst   goals", subst_goals);
           remainingGoals.unshift(...subst_goals);
@@ -194,7 +206,7 @@ class Prolog {
           // }
 
           //this.solve(remainingGoals, newSubst);
-          const subSolutions = this.solve(remainingGoals, newSubst);
+          const subSolutions = this.solve(remainingGoals, {});
           solutions.push(...subSolutions);
           console.log("solutions", solutions);
         }
@@ -225,14 +237,14 @@ class Prolog {
     if (this.isVariable(term1) && subst[term1] !== undefined) {
       term1 = subst[term1];
     }
-    // if (this.isVariable(term2) && subst[term2] !== undefined) {
-    //   term2 = subst[term2];
-    // }
-    if (this.isVariable(term1) && this.isVariable(term2) && term1 === term2) {
-      subst[term1] = "_G";
+    if (this.isVariable(term2) && subst[term2] !== undefined) {
+      term2 = subst[term2];
     }
+    // if (this.isVariable(term1) && this.isVariable(term2) && term1 === term2) {
+    //   subst[term1] = "_G";
+    //
 
-    // If both are the same, unification succeeds
+    // If both are the sameor second term is variable unification succeeds, its case where just actual values are compared or argument saved in databse is variable which means its universal and is true for any value
     if (term1 === term2 || this.isVariable(term2)) {
       return subst;
     }
@@ -286,7 +298,7 @@ class Prolog {
       args: goal.args.map((arg) =>
         this.isVariable(arg) && substitution[arg] !== undefined
           ? substitution[arg]
-          : arg
+          : arg,
       ),
     };
   }
@@ -434,7 +446,7 @@ document.getElementById("query").addEventListener("click", () => {
   article.innerText = value + " answer [" + answer + "] ";
 
   const existingArticles = Array.from(
-    document.querySelectorAll(".query-space")
+    document.querySelectorAll(".query-space"),
   );
   existingArticles.forEach((art) => {
     console.log(art);
@@ -472,4 +484,7 @@ document.getElementById("query").addEventListener("click", () => {
 
 //console.log(data_space);
 // delete data space
-console.log(p.formatSolution(p.query("male(ani)")));
+//console.log(p.formatSolution(p.query("male(lot),father(abraham,isaac)")));
+//p.formatSolution(p.query("father(haran,X),male(X)"));
+//p.formatSolution(p.query("likes(ani,pomegranates)"));
+p.formatSolution(p.query("son(X,Y)"));

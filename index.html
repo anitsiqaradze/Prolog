@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -22,12 +22,14 @@
         font-optical-sizing: auto;
 
         font-style: normal;
-        background: #f2e1c7;
+        /* background: #f2e1c7;
         background: radial-gradient(
           circle,
           rgba(242, 225, 199, 1) 0%,
           rgba(183, 206, 232, 1) 100%
         );
+         */
+        background-image: url("./res/059ac45058a83b22dcb5173db828d0e2.jpg");
 
         overflow: hidden;
 
@@ -97,7 +99,7 @@
       #dataset {
         width: 100%;
         height: 100%;
-        overflow-y: scroll;
+
         display: grid;
         grid-template-columns: repeat(5, 1fr);
         grid-auto-rows: 90px;
@@ -106,7 +108,7 @@
 
       .data-space {
         padding: 0.2em 0.7em;
-        border: 1px solid crimson;
+
         font-style: italic;
         height: 80px;
 
@@ -121,7 +123,8 @@
           rgba(183, 206, 232, 1) 100%
         );
 
-        box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px,
+        box-shadow:
+          rgba(9, 30, 66, 0.25) 0px 1px 1px,
           rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
         cursor: pointer;
       }
@@ -137,7 +140,8 @@
         background-color: rgb(54, 47, 47);
         width: 100%;
         border-radius: 0.2em;
-        box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px,
+        box-shadow:
+          rgba(9, 30, 66, 0.25) 0px 1px 1px,
           rgba(117, 119, 122, 0.13) 0px 0px 1px 1px;
 
         animation: slideUpBounce 0.4s ease-out;
